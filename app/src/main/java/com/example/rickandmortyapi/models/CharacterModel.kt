@@ -1,7 +1,8 @@
 package com.example.rickandmortyapi.models
 
+import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
-
+@Entity
 data class CharacterModel(
 
     @SerializedName("id")

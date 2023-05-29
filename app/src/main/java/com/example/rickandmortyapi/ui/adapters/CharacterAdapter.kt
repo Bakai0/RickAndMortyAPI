@@ -2,24 +2,23 @@ package com.example.rickandmortyapi.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rickandmortyapi.databinding.ItemCharacterBinding
 import com.example.rickandmortyapi.models.CharacterModel
-import kotlin.reflect.KFunction1
 
-class CharacterAdapter( val onItemClick: (dan: CharacterModel) -> Unit) :
-    ListAdapter<CharacterModel, CharacterAdapter.ViewHolder>(DiffUtilCallback()) {
+class CharacterAdapter(val onItemClick: (id: Int) -> Unit) :
+    PagingDataAdapter<CharacterModel, CharacterAdapter.ViewHolder>(DiffUtilCallback()) {
 
-     inner class ViewHolder ( private val binding: ItemCharacterBinding):
-            RecyclerView.ViewHolder(binding.root) {
-         init {
-             itemView.setOnClickListener {
-                 onItemClick(getItem(adapterPosition))
-             }
-         }
+    inner class ViewHolder(private val binding: ItemCharacterBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                getItem(absoluteAdapterPosition)?.let { character -> onItemClick(character.id) }
+            }
+        }
         fun onBind(item: CharacterModel?) {
             Glide.with(binding.itemCharacterImage).load(item?.image)
                 .into(binding.itemCharacterImage)

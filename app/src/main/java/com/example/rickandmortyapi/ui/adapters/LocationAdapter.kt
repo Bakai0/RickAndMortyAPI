@@ -2,13 +2,13 @@ package com.example.rickandmortyapi.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.ItemLocationBinding
 import com.example.rickandmortyapi.models.LocationModel
 
-class LocationAdapter : ListAdapter<LocationModel, LocationAdapter.LocationViewHolder>(DiffUtilCallback()) {
+class LocationAdapter : PagingDataAdapter<LocationModel, LocationAdapter.LocationViewHolder>(DiffUtilCallback()) {
 
     class LocationViewHolder(private val binding: ItemLocationBinding) :
         RecyclerView.ViewHolder(binding.root) {

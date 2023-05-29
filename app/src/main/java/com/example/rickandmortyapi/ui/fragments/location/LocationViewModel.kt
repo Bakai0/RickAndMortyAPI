@@ -1,37 +1,27 @@
 package com.example.rickandmortyapi.ui.fragments.location
 
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.rickandmortyapi.App
+import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import com.example.rickandmortyapi.data.repositories.LocationRepository
 import com.example.rickandmortyapi.models.LocationModel
 import com.example.rickandmortyapi.models.RickAndMortyResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class LocationViewModel : ViewModel() {
 
-    fun fetchLocations(): MutableLiveData<RickAndMortyResponse<LocationModel>?> {
-        val data = MutableLiveData<RickAndMortyResponse<LocationModel>?>()
+    private val locationRepository = LocationRepository()
+    private val _locationFlow = MutableSharedFlow<RickAndMortyResponse<LocationModel>>()
+    val locationFlow : Flow<RickAndMortyResponse<LocationModel>> get() = _locationFlow
+    private val _errorFlow = MutableSharedFlow<String>()
+    val errorFlow: Flow<String> get() = _errorFlow
 
-        App.locationApi?.fetchLocations()
-            ?.enqueue(object : Callback<RickAndMortyResponse<LocationModel>> {
-
-                override fun onResponse(
-                    call: Call<RickAndMortyResponse<LocationModel>>,
-                    response: Response<RickAndMortyResponse<LocationModel>>
-                ) {
-                    if (response.isSuccessful)
-                        data.value = response.body()
-                }
-
-                override fun onFailure(
-                    call: Call<RickAndMortyResponse<LocationModel>>,
-                    t: Throwable
-                ) {
-                    data.value = null
-                }
-            })
-        return data
+    init {
+        Log.e("viewModel", "Created")
     }
+
+    fun fetchLocation() = locationRepository.fetchLocation().cachedIn(viewModelScope)
 }
+

@@ -1,38 +1,24 @@
 package com.example.rickandmortyapi.ui.fragments.character.detail
 
-import androidx.lifecycle.ViewModelProvider
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
+import com.example.rickandmortyapi.R
+import com.example.rickandmortyapi.base.BaseFragment
 import com.example.rickandmortyapi.databinding.FragmentSingleBinding
+import com.example.rickandmortyapi.ui.fragments.character.SharedViewModel
 
-class SingleFragment : Fragment() {
+class SingleFragment :
+    BaseFragment<FragmentSingleBinding, SharedViewModel>(R.layout.fragment_single) {
 
-    private var viewModel: SingleViewModel? = null
-    private lateinit var binding: FragmentSingleBinding
+    override val binding by viewBinding(FragmentSingleBinding::bind)
+    override val viewModel: SharedViewModel by activityViewModels()
     private val args by navArgs<SingleFragmentArgs>()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        viewModel = ViewModelProvider(this)[SingleViewModel::class.java]
-        binding = FragmentSingleBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupObserves()
-    }
-
-    private fun setupObserves() {
+    override fun setupObserves() {
         viewModel?.fetchSingleCharacter(args.id.id)?.observe(viewLifecycleOwner) {
-            binding?.tvTextDetail?.text = args.id.name
+            binding.tvTextDetail.text = args.id.name
             Glide.with(binding.imgCharacterDetailPerson).load(args.id.image)
                 .into(binding.imgCharacterDetailPerson)
         }

@@ -1,38 +1,25 @@
 package com.example.rickandmortyapi.ui.fragments.episode
 
-import androidx.lifecycle.ViewModelProvider
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
+import com.example.rickandmortyapi.R
+import com.example.rickandmortyapi.base.BaseFragment
 import com.example.rickandmortyapi.databinding.FragmentEpisodeBinding
+import com.example.rickandmortyapi.ui.activity.MainActivity
 import com.example.rickandmortyapi.ui.adapters.EpisodeAdapter
+import kotlinx.coroutines.launch
 
-class EpisodeFragment : Fragment() {
+class EpisodeFragment:
+    BaseFragment<FragmentEpisodeBinding, SharedEpisodeViewModel>(R.layout.fragment_episode) {
 
-    private var viewModel: EpisodeViewModel? = null
-    private lateinit var binding: FragmentEpisodeBinding
+    override val binding by viewBinding(FragmentEpisodeBinding::bind)
+    override val viewModel: SharedEpisodeViewModel by viewModels()
     private var episodeAdapter = EpisodeAdapter()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentEpisodeBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[EpisodeViewModel::class.java]
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initialize()
-        setupObserve()
-    }
-
-    private fun initialize() {
+    override fun initialize() {
         binding.episodeRecView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = episodeAdapter
@@ -40,9 +27,18 @@ class EpisodeFragment : Fragment() {
         }
     }
 
-    private fun setupObserve() {
-        viewModel?.fetchEpisodes()?.observe(viewLifecycleOwner) {
-            episodeAdapter.submitList(it?.result)
+    override fun setupObserves() {
+        lifecycleScope.launch {
+            viewModel.fetchEpisode().collect {
+                episodeAdapter.submitData(it)
+            }
+        }
+    }
+    override fun bottomNavigationSelected() {
+        (requireActivity() as MainActivity).setOnItemReselectedListener() {
+            binding.episodeRecView.smoothScrollToPosition(0)
         }
     }
 }
+
+

@@ -8,5 +8,5 @@ data class RickAndMortyResponse<T>(
     val info: Info,
 
     @SerializedName("results")
-    val result: List<T>
+    val result: ArrayList<T>
 )

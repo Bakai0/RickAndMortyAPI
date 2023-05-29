@@ -1,59 +1,63 @@
 package com.example.rickandmortyapi.ui.fragments.character
 
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
+import com.example.rickandmortyapi.R
+import com.example.rickandmortyapi.base.BaseFragment
 import com.example.rickandmortyapi.databinding.FragmentCharacterBinding
 import com.example.rickandmortyapi.models.CharacterModel
+import com.example.rickandmortyapi.ui.activity.MainActivity
 import com.example.rickandmortyapi.ui.adapters.CharacterAdapter
+import kotlinx.coroutines.launch
 
-class CharacterFragment : Fragment() {
+class CharacterFragment :
+    BaseFragment<FragmentCharacterBinding, SharedViewModel>(R.layout.fragment_character) {
 
-    private var viewModel: CharacterViewModel? = null
-    private lateinit var binding: FragmentCharacterBinding
+    override val binding by viewBinding(FragmentCharacterBinding::bind)
+    override val viewModel: SharedViewModel by activityViewModels()
     private var characterAdapter = CharacterAdapter(this::onItemClick)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        viewModel = ViewModelProvider(this)[CharacterViewModel::class.java]
-        binding = FragmentCharacterBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initialize()
-        setupObserve()
-    }
-
-    private fun initialize() {
+    override fun initialize() {
         binding.characterRecView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = characterAdapter
-            Toast.makeText(context, "nvnfdhvjk", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun setupObserve() {
-        viewModel?.fetchCharacters()?.observe(viewLifecycleOwner) {
-            characterAdapter.submitList(it?.result)
+    override fun setupObserves() {
+        lifecycleScope.launch {
+            viewModel.fetchCharacters().collect {
+                characterAdapter.submitData(it)
+            }
         }
     }
 
-    private fun onItemClick(args: CharacterModel) {
+    private fun onItemClick(id: Int) {
+        val model = CharacterModel(
+            id = id,
+            name = "",
+            gender = "",
+            status = "",
+            image = "",
+        )
         findNavController().navigate(
             CharacterFragmentDirections.actionCharacterFragmentToSingleFragment(
-                args
+                model
             )
         )
     }
+
+    override fun bottomNavigationSelected() {
+        (requireActivity() as MainActivity).setOnItemReselectedListener() {
+            binding.characterRecView.smoothScrollToPosition(0)
+        }
+    }
 }
+
+
+
 
